@@ -44,11 +44,11 @@ function getSubUrl() {
           const keys = Object.keys(node.memoizedProps.subtitleUrl);
           console.info('langs', keys);
           keys.forEach( function(lang) {
-            console.info('fetching... ' + node.memoizedProps.subtitleUrl[lang]);
-            fetch(node.memoizedProps.subtitleUrl[lang])
-            .then(function(response) {
-              console.info(response.text());
-            });
+            window.postMessage({
+              source: 'subUrl',
+              lang: lang,
+              url: node.memoizedProps.subtitleUrl[lang],
+            }, '*');
           });
         }
 
