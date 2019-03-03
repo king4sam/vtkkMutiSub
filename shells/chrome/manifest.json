@@ -24,10 +24,7 @@
     "default_popup": "popups/disabled.html"
   },
 
-  "devtools_page": "main.html",
-
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
-  "web_accessible_resources": [ "main.html", "panel.html", "build/backend.js"],
 
   "background": {
     "scripts": [ "build/background.js" ],
@@ -45,6 +42,11 @@
       "matches": ["<all_urls>"],
       "js": ["build/inject.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["build/contentscript.js"],
+      "run_at": "document_idle"
     }
   ]
 }

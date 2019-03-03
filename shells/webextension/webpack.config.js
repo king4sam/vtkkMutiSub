@@ -20,10 +20,8 @@ module.exports = {
   devtool: __DEV__ ? 'cheap-module-eval-source-map' : false,
   entry: {
     background: './src/background.js',
-    contentScript: './src/contentScript.js',
     inject: './src/GlobalHook.js',
-    main: './src/main.js',
-    panel: './src/panel.js',
+    contentscript: './src/contentscript.js',
   },
   output: {
     path: __dirname + '/build',

@@ -58,10 +58,6 @@ const build = async(tempPath, manifestPath) => {
     `${webpackPath} --config webpack.config.js --output-path ${binPath}`,
     {cwd: __dirname, env: Object.assign({}, process.env, {NODE_ENV: 'production'})}
   );
-  await exec(
-    `${webpackPath} --config webpack.backend.js --output-path ${binPath}`,
-     {cwd: __dirname, env: Object.assign({}, process.env, {NODE_ENV: 'production'})}
-  );
 
   // Make temp dir
   await ensureDir(zipPath);
