@@ -1,8 +1,8 @@
-
 'use strict';
 
 console.info('contentscript!!');
 window._mutiSubs = new Map();
+window._observers = [];
 
 window.addEventListener('message', function(receivedMessage) {
   if (receivedMessage.data.source === 'subUrl') {
@@ -18,20 +18,36 @@ window.addEventListener('message', function(receivedMessage) {
     function addSubs(vtt) {
       if (!window._mutiSubs.has(lang)) {
         window._mutiSubs.set(lang, vtt);
+      
+        var langs = document.querySelector('#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu > ul').childNodes;
+        console.log('langs vs subs', langs.length - 2, window._mutiSubs.size);
+        if (window._mutiSubs.size === langs.length - 2) {
+          window.postMessage({
+            source: 'subEnough',
+          }, '*');
+          makeSecondaryMenu();
+        }
       }
     }
 
     fetch(receivedMessage.data.url)
-    .then(getVtt)
-    .then(addSubs);
+      .then(getVtt)
+      .then(addSubs);
   }
 });
 
 var getSubUrl = require('./getSubUrl');
 
 var js = (
-  'setTimeout(' + getSubUrl.toString() + ', 5000);'
-//   ';(' + getSubUrl.toString() + '(window))'
+  '(function () {' +
+  ' var tid = setInterval(' + getSubUrl.toString() + ', 5000);' +
+  ' window.addEventListener("message", function(receivedMessage) {' +
+  '   if (receivedMessage.data.source === "subEnough") {' +
+  '     clearInterval(tid);' +
+  '   }' +
+  ' })' +
+  '})();'
+  // ';(' + getSubUrl.toString() + '(window))'
 );
 
 // This script runs before the <head> element is created, so we add the script
