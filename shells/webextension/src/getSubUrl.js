@@ -72,7 +72,7 @@ function getSubUrl() {
       mountFiber(root.current);
     });
   }
-  console.info('getsubtitle url', hook);
+  console.info('end of traverse');
 }
 
 module.exports = getSubUrl;
