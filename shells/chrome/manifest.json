@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "React Developer Tools",
-  "description": "Adds React debugging tools to the Chrome Developer Tools.",
-  "version": "3.6.0",
+  "name": "KKTV Mutlti Subtitles",
+  "description": "Add Secondary subtitle",
+  "version": "1.0.0",
 
   "minimum_chrome_version": "49",
 
@@ -32,19 +32,17 @@
   },
 
   "permissions": [
-    "file:///*",
-    "http://*/*",
-    "https://*/*"
+    "https://www.kktv.me/*"
   ],
 
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["https://www.kktv.me/*"],
       "js": ["build/inject.js"],
       "run_at": "document_start"
     },
     {
-      "matches": ["<all_urls>"],
+      "matches": ["https://www.kktv.me/*"],
       "js": ["build/contentscript.js"],
       "run_at": "document_idle"
     }
