@@ -1,5 +1,7 @@
 'use strict';
 
+const langMap = new Map([['ja', '日文'],['zhHant', '繁體中文']]);
+
 console.info('contentscript!!');
 window._mutiSubs = new Map();
 window._observers = [];
@@ -47,11 +49,9 @@ var js = (
   '   }' +
   ' })' +
   '})();'
-  // ';(' + getSubUrl.toString() + '(window))'
 );
 
-// This script runs before the <head> element is created, so we add the script
-// to <html> instead.
+
 var script = document.createElement('script');
 script.textContent = js;
 document.documentElement.appendChild(script);
@@ -141,25 +141,27 @@ function makeSecondaryMenu() {
   var menu = document.querySelector('#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu');
   var ul = document.createElement('ul');
   var headli = document.createElement('li');
-  headli.innerText = 'Secondary Subtitle';
+  headli.innerText = '第二字幕';
   ul.appendChild(headli);
   window._mutiSubs.forEach((value, key) => {
     const li = document.createElement('li');
+    li.id = key;
     const check = document.createElement('span');
     check.classList.add('kktv');
     li.appendChild(check);
     const lang = document.createElement('span');
-    lang.innerText = key;
+    lang.innerText = langMap.get(key);
     li.appendChild(lang);
     li.addEventListener('click', function() {
       var siblings = Array.apply(null, this.parentNode.childNodes).slice(1);
+
       console.log(siblings);
       siblings.forEach(ele => {
         console.log(ele);
         ele.firstChild.classList.remove('kktv-check');
       });
       this.firstChild.classList.add('kktv-check');
-      enableSecondarySubtitle(this.innerText);
+      enableSecondarySubtitle(this.id);
     });
     ul.appendChild(li);
   });
