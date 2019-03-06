@@ -2,6 +2,19 @@
 
 function getSubUrl() {
 
+  function sendSubUrl(node) {
+    console.info('get sub url', node.memoizedProps.subtitleUrl);
+    const keys = Object.keys(node.memoizedProps.subtitleUrl);
+    console.info('langs', keys);
+    keys.forEach( function(lang) {
+      window.postMessage({
+        source: 'subUrl',
+        lang: lang,
+        url: node.memoizedProps.subtitleUrl[lang],
+      }, '*');
+    });
+  }
+
   function mountFiber(fiber) {
     console.info('mountFiber');
     // Depth-first.
@@ -13,19 +26,8 @@ function getSubUrl() {
         node = node.child;
         continue;
       }
-      // console.info(node);subtitleUrl
-      // console.info(node);
       if (node.memoizedProps && node.memoizedProps.subtitleUrl) {
-        console.info('get sub url', node.memoizedProps.subtitleUrl);
-        const keys = Object.keys(node.memoizedProps.subtitleUrl);
-        console.info('langs', keys);
-        keys.forEach( function(lang) {
-          console.info('fetching... ' + node.memoizedProps.subtitleUrl[lang]);
-          fetch(node.memoizedProps.subtitleUrl[lang])
-          .then(function(response) {
-            console.info(response.text());
-          });
-        });
+        sendSubUrl(node);
       }
       if (node == fiber) {
         return;
@@ -38,18 +40,8 @@ function getSubUrl() {
       while (node.return) {
         node = node.return;
 
-        // console.info(node);
         if (node.memoizedProps && node.memoizedProps.subtitleUrl) {
-          console.info('get sub url', node.memoizedProps.subtitleUrl);
-          const keys = Object.keys(node.memoizedProps.subtitleUrl);
-          console.info('langs', keys);
-          keys.forEach( function(lang) {
-            window.postMessage({
-              source: 'subUrl',
-              lang: lang,
-              url: node.memoizedProps.subtitleUrl[lang],
-            }, '*');
-          });
+          sendSubUrl(node);
         }
 
         if (node == fiber) {
@@ -66,13 +58,12 @@ function getSubUrl() {
   }
 
   var hook = window.__REACT_DEVTOOLS_GLOBAL_HOOK__;
-  console.info('getSubUrl hook', hook);
   for (var rid in hook._renderers) {
     hook.getFiberRoots(rid).forEach(root => {
       mountFiber(root.current);
     });
   }
-  console.info('end of traverse');
+  console.info('traverse fiber node tree');
 }
 
-module.exports = getSubUrl;
+export default getSubUrl;

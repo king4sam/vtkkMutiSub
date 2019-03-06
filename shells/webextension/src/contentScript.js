@@ -1,16 +1,16 @@
 'use strict';
 
-const langMap = new Map([['ja', '日文'],['zhHant', '繁體中文']]);
+const langMap = new Map([['ja', '日文'], ['zhHant', '繁體中文']]);
 
-console.info('contentscript!!');
 window._mutiSubs = new Map();
 window._observers = [];
+var langs = document.querySelector('#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu > ul').childNodes;
 
 window.addEventListener('message', function(receivedMessage) {
   if (receivedMessage.data.source === 'subUrl') {
     const lang = receivedMessage.data.lang;
-    console.log('got message from suburl', receivedMessage);
-    console.log('fetching... ' + receivedMessage.data.lang);
+    console.info('got message from suburl', receivedMessage);
+    console.info('fetching... ' + receivedMessage.data.lang);
 
     function getVtt(response) {
       const vtt = response.text();
@@ -20,9 +20,6 @@ window.addEventListener('message', function(receivedMessage) {
     function addSubs(vtt) {
       if (!window._mutiSubs.has(lang)) {
         window._mutiSubs.set(lang, vtt);
-      
-        var langs = document.querySelector('#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu > ul').childNodes;
-        console.log('langs vs subs', langs.length - 2, window._mutiSubs.size);
         if (window._mutiSubs.size === langs.length - 2) {
           window.postMessage({
             source: 'subEnough',
@@ -38,7 +35,7 @@ window.addEventListener('message', function(receivedMessage) {
   }
 });
 
-var getSubUrl = require('./getSubUrl');
+import getSubUrl from './getSubUrl';
 
 var js = (
   '(function () {' +
@@ -56,13 +53,10 @@ var script = document.createElement('script');
 script.textContent = js;
 document.documentElement.appendChild(script);
 script.parentNode.removeChild(script);
-console.log('contentscript!!');
-
 
 function makeSecondaryMenu() {
   function enableSecondarySubtitle(lang) {
-    console.log(lang);
-    // disconnect and empty observers array
+    console.info('enable : ', lang);
     window._observers.forEach(ob => ob.disconnect());
     window._observers = [];
 
@@ -117,10 +111,8 @@ function makeSecondaryMenu() {
 
     var cueObserver = new MutationObserver(function(mutations) {
       mutations.forEach(function(mutation) {
-        console.log(mutation);
         var nowcues = get2Cues();
         if (mutation.type === 'childList' && mutation.addedNodes.length > 0 && mutation.target.className.indexOf('cue-overlay ') !== -1 && mutation.target.innerText.indexOf(nowcues) === -1) {
-          console.log(nowcues);
           mutation.target.innerText = mutation.target.innerText + '\n' + nowcues;
         }
       });
@@ -136,8 +128,6 @@ function makeSecondaryMenu() {
 
     window._observers.push(cueObserver);
   }
-
-  // var subtitlebtn = document.querySelector('#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle')
   var menu = document.querySelector('#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu');
   var ul = document.createElement('ul');
   var headli = document.createElement('li');
@@ -154,10 +144,7 @@ function makeSecondaryMenu() {
     li.appendChild(lang);
     li.addEventListener('click', function() {
       var siblings = Array.apply(null, this.parentNode.childNodes).slice(1);
-
-      console.log(siblings);
       siblings.forEach(ele => {
-        console.log(ele);
         ele.firstChild.classList.remove('kktv-check');
       });
       this.firstChild.classList.add('kktv-check');

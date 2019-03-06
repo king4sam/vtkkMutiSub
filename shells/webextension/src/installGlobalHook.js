@@ -224,4 +224,4 @@ function installGlobalHook(window) {
   });
 }
 
-module.exports = installGlobalHook;
+export default installGlobalHook;
