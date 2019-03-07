@@ -13,8 +13,10 @@ dummyHead.innerText = '第二字幕';
 langList.appendChild(dummyHead);
 secondaryMenu.appendChild(langList);
 secondaryMenu.style.display = 'inline-flex';
-
-langList.appendChild(secondarySubtitleOnclick);
+langList.appendChild(genMenuListItem('無字幕', () => {
+  window._observers.forEach(ob => ob.disconnect());
+  window._observers = [];
+}));
 
 function genMenuListItem(lang, fn) {
   const li = document.createElement('li');
@@ -101,13 +103,10 @@ function secondarySubtitleOnclick() {
       });
     });
 
-    // configuration of the observer:
-    var config = {
-      childList: true,
-    };
-
     // pass in the target node, as well as the observer options
-    cueObserver.observe(cueElement, config);
+    cueObserver.observe(cueElement, {
+      childList: true,
+    });
 
     window._observers.push(cueObserver);
   }
