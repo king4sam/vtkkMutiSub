@@ -9,6 +9,7 @@
  */
 'use strict';
 
+require('@babel/polyfill');
 const {readFileSync} = require('fs');
 const {resolve} = require('path');
 const webpack = require('webpack');
@@ -21,7 +22,7 @@ module.exports = {
   entry: {
     background: './src/background.js',
     inject: './src/GlobalHook.js',
-    contentscript: './src/contentscript.js',
+    contentscript: ['@babel/polyfill', './src/contentscript.js'],
   },
   output: {
     path: __dirname + '/build',
