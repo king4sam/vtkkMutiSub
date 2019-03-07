@@ -4,7 +4,6 @@ const langMap = new Map([['ja', '日文'], ['zhHant', '繁體中文']]);
 
 window._mutiSubs = new Map();
 window._observers = [];
-const numLangs = document.querySelector('#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu > ul').childNodes.length - 2;
 
 // create secondary menu 
 const secondaryMenu = document.querySelector('#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu');
@@ -17,6 +16,7 @@ secondaryMenu.style.display = 'inline-flex';
 
 
 window.addEventListener('message', function(receivedMessage) {
+  const numLangs = document.querySelector('#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu > ul').children.length - 2;
   if (receivedMessage.data.source === 'subUrl') {
     const lang = receivedMessage.data.lang;
     console.info('got message from suburl', receivedMessage);
@@ -39,13 +39,14 @@ window.addEventListener('message', function(receivedMessage) {
         langcheck.innerText = langMap.get(lang);
         li.appendChild(langcheck);
         li.addEventListener('click', function() {
-          var siblings = Array.apply(null, this.parentNode.childNodes).slice(1);
+          const siblings = Array.apply(null, this.parentNode.childNodes).slice(1);
           siblings.forEach(ele => {
             ele.firstChild.classList.remove('kktv-check');
           });
           this.firstChild.classList.add('kktv-check');
           secondarySubtitleOnclick(this.id);
         });
+        langList.appendChild(li);
         
         if (window._mutiSubs.size === numLangs) {
           // stop time interval
