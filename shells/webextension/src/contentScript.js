@@ -14,12 +14,7 @@ langList.appendChild(dummyHead);
 secondaryMenu.appendChild(langList);
 secondaryMenu.style.display = 'inline-flex';
 
-const disableAllItem = genMenuListItem('無字幕', () => {
-  window._observers.forEach(ob => ob.disconnect());
-  window._observers = [];
-});
-
-langList.appendChild(disableAllItem);
+langList.appendChild(secondarySubtitleOnclick);
 
 function genMenuListItem(lang, fn) {
   const li = document.createElement('li');
@@ -47,75 +42,76 @@ function secondarySubtitleOnclick() {
   window._observers.forEach(ob => ob.disconnect());
   window._observers = [];
 
-  var vtt = window._mutiSubs.get(language);
+  if (language !== '無字幕') {
+    var vtt = window._mutiSubs.get(language);
 
-  var cues = vtt.split('\n\n').filter(cue => {
-    return cue.includes('-->');
-  });
-
-  var video = document.querySelector('#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.dash-video-player > video');
-
-  var cueElement = document.querySelector('#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.js-cue-overlay.cue-overlay');
-
-  function calculateSeconds(timestr) {
-    const regex = /(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2})/g;
-    let m;
-    let seconds = null;
-    while ((m = regex.exec(timestr)) !== null) {
-      if (m.index === regex.lastIndex) {
-        regex.lastIndex++;
-      }
-
-      seconds = 0;
-      seconds = parseInt(m.groups.hour, 10) * 3600 + parseInt(m.groups.minute, 10) * 60 + parseInt(m.groups.second, 10);
-    }
-    return seconds;
-  }
-
-  var structuredCues = cues.map(cue => {
-    const arys = cue.split('\n');
-    const times = arys[0].split('-->');
-    const startTime = calculateSeconds(times[0]);
-    const endTime = calculateSeconds(times[1]);
-    arys.shift();
-    return {
-      startTime,
-      endTime,
-      sayings: arys.join(' '),
-    };
-  });
-
-  function get2Cues() {
-    var current = video.currentTime;
-    var toShow = structuredCues.filter(cue => {
-      return current >= cue.startTime && current <= cue.endTime;
-    }).map(cur => cur.sayings)
-      .reduce(function(acc, cur) {
-        return acc + cur;
-      }, '');
-    return toShow;
-  }
-
-  var cueObserver = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-      var nowcues = get2Cues();
-      if (mutation.type === 'childList' && mutation.addedNodes.length > 0 && mutation.target.className.indexOf('cue-overlay ') !== -1 && mutation.target.innerText.indexOf(nowcues) === -1) {
-        mutation.target.innerText = mutation.target.innerText + '\n' + nowcues;
-      }
+    var cues = vtt.split('\n\n').filter(cue => {
+      return cue.includes('-->');
     });
-  });
 
-  // configuration of the observer:
-  var config = {
-    childList: true,
-  };
+    var video = document.querySelector('#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.dash-video-player > video');
 
-  // pass in the target node, as well as the observer options
-  cueObserver.observe(cueElement, config);
+    var cueElement = document.querySelector('#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.js-cue-overlay.cue-overlay');
+    cueElement.style.fontSize = '4vh';
+    function calculateSeconds(timestr) {
+      const regex = /(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2})/g;
+      let m;
+      let seconds = null;
+      while ((m = regex.exec(timestr)) !== null) {
+        if (m.index === regex.lastIndex) {
+          regex.lastIndex++;
+        }
 
-  window._observers.push(cueObserver);
+        seconds = 0;
+        seconds = parseInt(m.groups.hour, 10) * 3600 + parseInt(m.groups.minute, 10) * 60 + parseInt(m.groups.second, 10);
+      }
+      return seconds;
+    }
+
+    var structuredCues = cues.map(cue => {
+      const arys = cue.split('\n');
+      const times = arys[0].split('-->');
+      const startTime = calculateSeconds(times[0]);
+      const endTime = calculateSeconds(times[1]);
+      arys.shift();
+      return {
+        startTime,
+        endTime,
+        sayings: arys.join(' '),
+      };
+    });
+
+    function getCurrentCues() {
+      var current = video.currentTime;
+      var toShow = structuredCues.filter(cue => {
+        return current >= cue.startTime && current <= cue.endTime;
+      }).map(cur => cur.sayings)
+        .reduce(function(acc, cur) {
+          return acc + cur;
+        }, '');
+      return toShow;
+    }
+
+    var cueObserver = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        var nowcues = getCurrentCues();
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0 && mutation.target.className.indexOf('cue-overlay ') !== -1 && mutation.target.innerText.indexOf(nowcues) === -1) {
+          mutation.target.innerText = mutation.target.innerText + '\n' + nowcues;
+        }
+      });
+    });
+
+    // configuration of the observer:
+    var config = {
+      childList: true,
+    };
+
+    // pass in the target node, as well as the observer options
+    cueObserver.observe(cueElement, config);
+
+    window._observers.push(cueObserver);
+  }
 }
-
 
 // hanlde get subUrl message 
 window.addEventListener('message', async function(receivedMessage) {
