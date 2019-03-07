@@ -13,15 +13,14 @@
     "128": "icons/128-production.png"
   },
 
-  "browser_action": {
+  "page_action": {
+    "default_popup": "popups/disabled.html",
     "default_icon": {
-      "16": "icons/16-disabled.png",
-      "32": "icons/32-disabled.png",
-      "48": "icons/48-disabled.png",
-      "128": "icons/128-disabled.png"
-    },
-
-    "default_popup": "popups/disabled.html"
+      "16": "icons/16-production.png",
+      "32": "icons/32-production.png",
+      "48": "icons/48-production.png",
+      "128": "icons/128-production.png"
+    }
   },
 
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
