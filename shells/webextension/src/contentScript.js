@@ -7,7 +7,7 @@ window._observers = [];
 
 // create secondary menu
 const secondaryMenu = document.querySelector(
-  '<div id="a"></div>pp-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu'
+  '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu'
 );
 const langList = document.createElement('ul');
 const dummyHead = document.createElement('li');
@@ -111,26 +111,41 @@ function secondarySubtitleOnclick() {
       return toShow;
     }
 
-    const cueObserver = new MutationObserver(function(mutations) {
-      mutations.forEach(function(mutation) {
-        const nowcues = getCurrentCues();
-        if (
-          mutation.type === 'childList' &&
-          mutation.addedNodes.length > 0 &&
-          mutation.target.className.indexOf('cue-overlay ') !== -1 &&
-          mutation.target.innerText.indexOf(nowcues) === -1
-        ) {
-          mutation.target.innerText = mutation.target.innerText + '\n' + nowcues;
-        }
-      });
-    });
+    setInterval(() => {
+      const nowcues = getCurrentCues();
 
-    // pass in the target node, as well as the observer options
-    cueObserver.observe(cueElement, {
-      childList: true,
-    });
+      const originCue = document.querySelector(
+        '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.js-cue-overlay.cue-overlay'
+      );
 
-    window._observers.push(cueObserver);
+      let cueWrapper = document.getElementById('cueWrapper');
+
+      const videoWrapper = document.querySelector(
+        '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper'
+      );
+
+      const subCue = document.getElementById('subCue');
+
+      if (!cueWrapper) {
+        const cueWrapperEle = document.createElement('div');
+        cueWrapperEle.id = 'cueWrapper';
+        cueWrapperEle.appendChild(originCue);
+        originCue.classList.remove('cue-overlay');
+        cueWrapperEle.classList.add('cue-overlay');
+        cueWrapper = cueWrapperEle;
+        videoWrapper.appendChild(cueWrapperEle);
+      }
+
+      if (!subCue) {
+        const secSubEle = document.createElement('div');
+        secSubEle.id = 'subCue';
+        secSubEle.style.fontSize = '4vh';
+        secSubEle.innerText = `${nowcues}`;
+        cueWrapper.appendChild(secSubEle);
+      } else {
+        subCue.innerText = `${nowcues}`;
+      }
+    }, 200);
   }
 }
 
@@ -150,7 +165,7 @@ window.addEventListener('message', async function(receivedMessage) {
     if (!window._mutiSubs.has(lang)) {
       window._mutiSubs.set(lang, vtt);
 
-      const li = genMenuListItem(lang, secondarySubtitleOnclick);
+      const li = genMenuListItem({ lang, onclickcb: secondarySubtitleOnclick });
       langList.appendChild(li);
 
       if (window._mutiSubs.size === numLangs) {
