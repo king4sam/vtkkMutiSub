@@ -62,11 +62,6 @@ function secondarySubtitleOnclick() {
       '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.dash-video-player > video'
     );
 
-    // const cueElement = document.querySelector(
-    //   '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.js-cue-overlay.cue-overlay'
-    // );
-    // cueElement.style.fontSize = '4vh';
-
     function calculateMilliseconds(timestr) {
       const regex = /(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2}).(?<ms>\d{3})/g;
       let m;
