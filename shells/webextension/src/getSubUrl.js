@@ -1,17 +1,19 @@
 'use strict';
 
 function getSubUrl() {
-
   function sendSubUrl(node) {
     console.info('get sub url', node.memoizedProps.subtitleUrl);
     const keys = Object.keys(node.memoizedProps.subtitleUrl);
     console.info('langs', keys);
-    keys.forEach( function(lang) {
-      window.postMessage({
-        source: 'subUrl',
-        lang: lang,
-        url: node.memoizedProps.subtitleUrl[lang],
-      }, '*');
+    keys.forEach(function(lang) {
+      window.postMessage(
+        {
+          source: 'subUrl',
+          lang: lang,
+          url: node.memoizedProps.subtitleUrl[lang],
+        },
+        '*'
+      );
     });
   }
 

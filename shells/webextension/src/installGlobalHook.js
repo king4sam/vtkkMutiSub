@@ -17,6 +17,7 @@ function installGlobalHook(window) {
   if (window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
     return;
   }
+
   function detectReactBuildType(renderer) {
     try {
       if (typeof renderer.version === 'string') {
@@ -119,7 +120,7 @@ function installGlobalHook(window) {
 
   let hasDetectedBadDCE = false;
 
-  const hook = ({
+  const hook = {
     // Shared between Stack and Fiber:
     _subtitleUrls: [],
     _renderers: {},
@@ -148,15 +149,19 @@ function installGlobalHook(window) {
             );
           });
         }
-      } catch (err) { }
+      } catch (err) {}
     },
     inject: function(renderer) {
-      var id = Math.random().toString(16).slice(2);
+      var id = Math.random()
+        .toString(16)
+        .slice(2);
       hook._renderers[id] = renderer;
-      var reactBuildType = hasDetectedBadDCE ?
-        'deadcode' :
-        detectReactBuildType(renderer);
-      hook.emit('renderer', {id, renderer, reactBuildType});
+      var reactBuildType = hasDetectedBadDCE ? 'deadcode' : detectReactBuildType(renderer);
+      hook.emit('renderer', {
+        id,
+        renderer,
+        reactBuildType,
+      });
       return id;
     },
     _listeners: {},
@@ -218,9 +223,9 @@ function installGlobalHook(window) {
         hook.helpers[rendererID].handleCommitFiberRoot(root);
       }
     },
-  });
+  };
   Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
-    value: (hook),
+    value: hook,
   });
 }
 
