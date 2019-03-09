@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "KKTV Mutlti Subtitles",
   "description": "Add Secondary subtitle",
-  "version": "1.0.0",
+  "version": "1.1.0",
 
   "default_locale": "en",
 
@@ -32,18 +32,18 @@
     "persistent": false
   },
 
-  "permissions": ["https://www.kktv.me/*", "declarativeContent"],
+  "permissions": ["https://www.kktv.me/play/*", "declarativeContent"],
 
   "content_scripts": [
     {
-      "matches": ["https://www.kktv.me/*"],
+      "matches": ["https://www.kktv.me/play/*"],
       "js": ["build/inject.js"],
       "run_at": "document_start"
     },
     {
-      "matches": ["https://www.kktv.me/*"],
+      "matches": ["https://www.kktv.me/play/*"],
       "js": ["build/contentscript.js"],
-      "run_at": "document_idle"
+      "run_at": "document_end"
     }
   ]
 }
