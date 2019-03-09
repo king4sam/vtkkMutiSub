@@ -32,7 +32,7 @@
     "persistent": false
   },
 
-  "permissions": ["https://www.kktv.me/*"],
+  "permissions": ["https://www.kktv.me/*", "declarativeContent"],
 
   "content_scripts": [
     {
