@@ -1,8 +1,6 @@
 import getSubUrl from './getSubUrl';
 
-function getLocaleText(str) {
-  return chrome.i18n.getMessage(str);
-}
+console.info('content script initial');
 
 const secondaryMenuSelector =
   '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu';
@@ -16,52 +14,22 @@ const langSelectSelector =
   '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu > ul';
 
 window._mutiSubs = new Map();
-window._observers = [];
+window._renderer = [];
 
-// create secondary menu
-const secondaryMenu = document.querySelector(secondaryMenuSelector);
-const langList = document.createElement('ul');
-const dummyHead = document.createElement('li');
-dummyHead.innerText = getLocaleText('secondarySubtitle');
-langList.appendChild(dummyHead);
-secondaryMenu.appendChild(langList);
-secondaryMenu.style.display = 'inline-flex';
-langList.appendChild(
-  genMenuListItem({
-    lang: 'disableSubtitle',
-    onclickcb: () => {
-      window._observers.forEach(ob => ob.disconnect());
-      window._observers = [];
-    },
-  })
-);
-
-function genMenuListItem({ lang, onclickcb }) {
-  const li = document.createElement('li');
-  li.id = lang;
-  const check = document.createElement('span');
-  check.classList.add('kktv');
-  li.appendChild(check);
-  const langText = document.createElement('span');
-  langText.innerText = getLocaleText(lang);
-  li.appendChild(langText);
-  li.addEventListener('click', onclickcb);
-  return li;
+function getLocaleText(str) {
+  return chrome.i18n.getMessage(str);
 }
 
-function getCurrentCues(structuredCues) {
-  const video = document.querySelector(videoSelector);
-  const current = video.currentTime * 1000;
-  const toShow = structuredCues
-    .filter(cue => {
-      return current >= cue.startTime && current <= cue.endTime;
-    })
-    .map(cur => cur.sayings)
-    .reduce(function(acc, cur) {
-      return acc + cur;
-    }, '');
-  return toShow;
+function clearCueRender() {
+  window._renderer.forEach(renderer => clearInterval(renderer));
+  window._renderer = [];
+  const cue = document.getElementById('subCue');
+  if (cue) {
+    cue.innerText = '';
+  }
 }
+
+clearCueRender();
 
 // language list item onclick handler
 function secondarySubtitleOnclick() {
@@ -72,8 +40,7 @@ function secondarySubtitleOnclick() {
   });
   this.firstChild.classList.add('kktv-check');
 
-  window._observers.forEach(ob => ob.disconnect());
-  window._observers = [];
+  clearCueRender();
 
   if (language !== getLocaleText('disableSubtitle')) {
     console.info('enable : ', language);
@@ -96,7 +63,7 @@ function secondarySubtitleOnclick() {
       };
     });
 
-    setInterval(() => {
+    const timer = setInterval(() => {
       const nowcues = getCurrentCues(structuredCues);
       console.info(nowcues);
 
@@ -128,7 +95,51 @@ function secondarySubtitleOnclick() {
         subCue.innerText = `${nowcues}`;
       }
     }, 200);
+
+    window._renderer.push(timer);
   }
+}
+
+// create secondary menu
+const secondaryMenu = document.querySelector(secondaryMenuSelector);
+const langList = document.createElement('ul');
+const dummyHead = document.createElement('li');
+dummyHead.innerText = getLocaleText('secondarySubtitle');
+langList.appendChild(dummyHead);
+secondaryMenu.appendChild(langList);
+secondaryMenu.style.display = 'inline-flex';
+langList.appendChild(
+  genMenuListItem({
+    lang: 'disableSubtitle',
+    onclickcb: secondarySubtitleOnclick,
+  })
+);
+
+function genMenuListItem({ lang, onclickcb }) {
+  const li = document.createElement('li');
+  li.id = lang;
+  const check = document.createElement('span');
+  check.classList.add('kktv');
+  li.appendChild(check);
+  const langText = document.createElement('span');
+  langText.innerText = getLocaleText(lang);
+  li.appendChild(langText);
+  li.addEventListener('click', onclickcb);
+  return li;
+}
+
+function getCurrentCues(structuredCues) {
+  const video = document.querySelector(videoSelector);
+  const current = video.currentTime * 1000;
+  const toShow = structuredCues
+    .filter(cue => {
+      return current >= cue.startTime && current <= cue.endTime;
+    })
+    .map(cur => cur.sayings)
+    .reduce(function(acc, cur) {
+      return acc + cur;
+    }, '');
+  return toShow;
 }
 
 function calculateMilliseconds(timestr) {
