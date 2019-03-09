@@ -1,23 +1,34 @@
 import getSubUrl from './getSubUrl';
 
-const langMap = new Map([['ja', '日文'], ['zhHant', '繁體中文']]);
+function getLocaleText(str) {
+  return chrome.i18n.getMessage(str);
+}
+
+const secondaryMenuSelector =
+  '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu';
+const videoSelector =
+  '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.dash-video-player > video';
+const originCueSelector =
+  '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.js-cue-overlay.cue-overlay';
+const videoWrapperSelector =
+  '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper';
+const langSelectSelector =
+  '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu > ul';
 
 window._mutiSubs = new Map();
 window._observers = [];
 
 // create secondary menu
-const secondaryMenu = document.querySelector(
-  '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu'
-);
+const secondaryMenu = document.querySelector(secondaryMenuSelector);
 const langList = document.createElement('ul');
 const dummyHead = document.createElement('li');
-dummyHead.innerText = '第二字幕';
+dummyHead.innerText = getLocaleText('secondarySubtitle');
 langList.appendChild(dummyHead);
 secondaryMenu.appendChild(langList);
 secondaryMenu.style.display = 'inline-flex';
 langList.appendChild(
   genMenuListItem({
-    lang: '無字幕',
+    lang: 'disableSubtitle',
     onclickcb: () => {
       window._observers.forEach(ob => ob.disconnect());
       window._observers = [];
@@ -32,16 +43,14 @@ function genMenuListItem({ lang, onclickcb }) {
   check.classList.add('kktv');
   li.appendChild(check);
   const langText = document.createElement('span');
-  langText.innerText = lang === '無字幕' ? lang : langMap.get(lang);
+  langText.innerText = getLocaleText(lang);
   li.appendChild(langText);
   li.addEventListener('click', onclickcb);
   return li;
 }
 
 function getCurrentCues(structuredCues) {
-  const video = document.querySelector(
-    '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.dash-video-player > video'
-  );
+  const video = document.querySelector(videoSelector);
   const current = video.currentTime * 1000;
   const toShow = structuredCues
     .filter(cue => {
@@ -63,11 +72,11 @@ function secondarySubtitleOnclick() {
   });
   this.firstChild.classList.add('kktv-check');
 
-  console.info('enable : ', language);
   window._observers.forEach(ob => ob.disconnect());
   window._observers = [];
 
-  if (language !== '無字幕') {
+  if (language !== getLocaleText('disableSubtitle')) {
+    console.info('enable : ', language);
     const vtt = window._mutiSubs.get(language);
 
     const cues = vtt.split('\n\n').filter(cue => {
@@ -89,16 +98,13 @@ function secondarySubtitleOnclick() {
 
     setInterval(() => {
       const nowcues = getCurrentCues(structuredCues);
+      console.info(nowcues);
 
-      const originCue = document.querySelector(
-        '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.js-cue-overlay.cue-overlay'
-      );
+      const originCue = document.querySelector(originCueSelector);
 
       let cueWrapper = document.getElementById('cueWrapper');
 
-      const videoWrapper = document.querySelector(
-        '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper'
-      );
+      const videoWrapper = document.querySelector(videoWrapperSelector);
 
       const subCue = document.getElementById('subCue');
 
@@ -146,10 +152,7 @@ function calculateMilliseconds(timestr) {
 
 // hanlde get subUrl message
 window.addEventListener('message', async function(receivedMessage) {
-  const numLangs =
-    document.querySelector(
-      '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu > ul'
-    ).children.length - 2;
+  const numLangs = document.querySelector(langSelectSelector).children.length - 2;
   if (receivedMessage.data.source === 'subUrl') {
     const lang = receivedMessage.data.lang;
     console.info('got message from suburl', receivedMessage);

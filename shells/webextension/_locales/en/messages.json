@@ -1,0 +1,6 @@
+{
+  "secondarySubtitle": { "message": "SecondarySubtitle" },
+  "disableSubtitle": { "message": "no Subtitle" },
+  "ja": { "message": "Japanese" },
+  "zhHant": { "message": "Chinese Traditional" }
+}

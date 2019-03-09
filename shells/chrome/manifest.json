@@ -4,6 +4,8 @@
   "description": "Add Secondary subtitle",
   "version": "1.0.0",
 
+  "default_locale": "en",
+
   "minimum_chrome_version": "49",
 
   "icons": {
@@ -26,13 +28,11 @@
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 
   "background": {
-    "scripts": [ "build/background.js" ],
+    "scripts": ["build/background.js"],
     "persistent": false
   },
 
-  "permissions": [
-    "https://www.kktv.me/*"
-  ],
+  "permissions": ["https://www.kktv.me/*"],
 
   "content_scripts": [
     {

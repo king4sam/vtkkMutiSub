@@ -1,0 +1,6 @@
+{
+  "secondarySubtitle": { "message": "第二字幕" },
+  "disableSubtitle": { "message": "無字幕" },
+  "ja": { "message": "日文" },
+  "zhHant": { "message": "繁體中文" }
+}
