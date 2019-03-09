@@ -62,34 +62,35 @@ function secondarySubtitleOnclick() {
       '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.dash-video-player > video'
     );
 
-    const cueElement = document.querySelector(
-      '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.js-cue-overlay.cue-overlay'
-    );
-    cueElement.style.fontSize = '4vh';
+    // const cueElement = document.querySelector(
+    //   '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.js-cue-overlay.cue-overlay'
+    // );
+    // cueElement.style.fontSize = '4vh';
 
-    function calculateSeconds(timestr) {
-      const regex = /(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2})/g;
+    function calculateMilliseconds(timestr) {
+      const regex = /(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2}).(?<ms>\d{3})/g;
       let m;
-      let seconds = null;
+      let milliseconds = null;
       while ((m = regex.exec(timestr)) !== null) {
         if (m.index === regex.lastIndex) {
           regex.lastIndex++;
         }
 
-        seconds = 0;
-        seconds =
-          parseInt(m.groups.hour, 10) * 3600 +
-          parseInt(m.groups.minute, 10) * 60 +
-          parseInt(m.groups.second, 10);
+        milliseconds = 0;
+        milliseconds =
+          parseInt(m.groups.hour, 10) * 3600000 +
+          parseInt(m.groups.minute, 10) * 60000 +
+          parseInt(m.groups.second, 10) * 1000 +
+          parseInt(m.groups.ms, 10);
       }
-      return seconds;
+      return milliseconds;
     }
 
     const structuredCues = cues.map(cue => {
       const arys = cue.split('\n');
       const times = arys[0].split('-->');
-      const startTime = calculateSeconds(times[0]);
-      const endTime = calculateSeconds(times[1]);
+      const startTime = calculateMilliseconds(times[0]);
+      const endTime = calculateMilliseconds(times[1]);
       arys.shift();
       return {
         startTime,
@@ -99,7 +100,7 @@ function secondarySubtitleOnclick() {
     });
 
     function getCurrentCues() {
-      const current = video.currentTime;
+      const current = video.currentTime * 1000;
       const toShow = structuredCues
         .filter(cue => {
           return current >= cue.startTime && current <= cue.endTime;
