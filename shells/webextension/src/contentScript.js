@@ -38,6 +38,22 @@ function genMenuListItem({ lang, onclickcb }) {
   return li;
 }
 
+function getCurrentCues(structuredCues) {
+  const video = document.querySelector(
+    '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.dash-video-player > video'
+  );
+  const current = video.currentTime * 1000;
+  const toShow = structuredCues
+    .filter(cue => {
+      return current >= cue.startTime && current <= cue.endTime;
+    })
+    .map(cur => cur.sayings)
+    .reduce(function(acc, cur) {
+      return acc + cur;
+    }, '');
+  return toShow;
+}
+
 // language list item onclick handler
 function secondarySubtitleOnclick() {
   const language = this.id;
@@ -58,29 +74,6 @@ function secondarySubtitleOnclick() {
       return cue.includes('-->');
     });
 
-    const video = document.querySelector(
-      '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.dash-video-player > video'
-    );
-
-    function calculateMilliseconds(timestr) {
-      const regex = /(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2}).(?<ms>\d{3})/g;
-      let m;
-      let milliseconds = null;
-      while ((m = regex.exec(timestr)) !== null) {
-        if (m.index === regex.lastIndex) {
-          regex.lastIndex++;
-        }
-
-        milliseconds = 0;
-        milliseconds =
-          parseInt(m.groups.hour, 10) * 3600000 +
-          parseInt(m.groups.minute, 10) * 60000 +
-          parseInt(m.groups.second, 10) * 1000 +
-          parseInt(m.groups.ms, 10);
-      }
-      return milliseconds;
-    }
-
     const structuredCues = cues.map(cue => {
       const arys = cue.split('\n');
       const times = arys[0].split('-->');
@@ -94,21 +87,8 @@ function secondarySubtitleOnclick() {
       };
     });
 
-    function getCurrentCues() {
-      const current = video.currentTime * 1000;
-      const toShow = structuredCues
-        .filter(cue => {
-          return current >= cue.startTime && current <= cue.endTime;
-        })
-        .map(cur => cur.sayings)
-        .reduce(function(acc, cur) {
-          return acc + cur;
-        }, '');
-      return toShow;
-    }
-
     setInterval(() => {
-      const nowcues = getCurrentCues();
+      const nowcues = getCurrentCues(structuredCues);
 
       const originCue = document.querySelector(
         '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.js-cue-overlay.cue-overlay'
@@ -143,6 +123,25 @@ function secondarySubtitleOnclick() {
       }
     }, 200);
   }
+}
+
+function calculateMilliseconds(timestr) {
+  const regex = /(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2}).(?<ms>\d{3})/g;
+  let m;
+  let milliseconds = null;
+  while ((m = regex.exec(timestr)) !== null) {
+    if (m.index === regex.lastIndex) {
+      regex.lastIndex++;
+    }
+
+    milliseconds = 0;
+    milliseconds =
+      parseInt(m.groups.hour, 10) * 3600000 +
+      parseInt(m.groups.minute, 10) * 60000 +
+      parseInt(m.groups.second, 10) * 1000 +
+      parseInt(m.groups.ms, 10);
+  }
+  return milliseconds;
 }
 
 // hanlde get subUrl message
