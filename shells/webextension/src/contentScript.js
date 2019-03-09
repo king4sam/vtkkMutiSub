@@ -16,13 +16,16 @@ langList.appendChild(dummyHead);
 secondaryMenu.appendChild(langList);
 secondaryMenu.style.display = 'inline-flex';
 langList.appendChild(
-  genMenuListItem('無字幕', () => {
-    window._observers.forEach(ob => ob.disconnect());
-    window._observers = [];
+  genMenuListItem({
+    lang: '無字幕',
+    onclickcb: () => {
+      window._observers.forEach(ob => ob.disconnect());
+      window._observers = [];
+    },
   })
 );
 
-function genMenuListItem(lang, fn) {
+function genMenuListItem({ lang, onclickcb }) {
   const li = document.createElement('li');
   li.id = lang;
   const check = document.createElement('span');
@@ -31,7 +34,7 @@ function genMenuListItem(lang, fn) {
   const langText = document.createElement('span');
   langText.innerText = lang === '無字幕' ? lang : langMap.get(lang);
   li.appendChild(langText);
-  li.addEventListener('click', fn);
+  li.addEventListener('click', onclickcb);
   return li;
 }
 
@@ -49,17 +52,17 @@ function secondarySubtitleOnclick() {
   window._observers = [];
 
   if (language !== '無字幕') {
-    var vtt = window._mutiSubs.get(language);
+    const vtt = window._mutiSubs.get(language);
 
-    var cues = vtt.split('\n\n').filter(cue => {
+    const cues = vtt.split('\n\n').filter(cue => {
       return cue.includes('-->');
     });
 
-    var video = document.querySelector(
+    const video = document.querySelector(
       '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.dash-video-player > video'
     );
 
-    var cueElement = document.querySelector(
+    const cueElement = document.querySelector(
       '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.js-cue-overlay.cue-overlay'
     );
     cueElement.style.fontSize = '4vh';
@@ -82,7 +85,7 @@ function secondarySubtitleOnclick() {
       return seconds;
     }
 
-    var structuredCues = cues.map(cue => {
+    const structuredCues = cues.map(cue => {
       const arys = cue.split('\n');
       const times = arys[0].split('-->');
       const startTime = calculateSeconds(times[0]);
@@ -96,8 +99,8 @@ function secondarySubtitleOnclick() {
     });
 
     function getCurrentCues() {
-      var current = video.currentTime;
-      var toShow = structuredCues
+      const current = video.currentTime;
+      const toShow = structuredCues
         .filter(cue => {
           return current >= cue.startTime && current <= cue.endTime;
         })
@@ -108,9 +111,9 @@ function secondarySubtitleOnclick() {
       return toShow;
     }
 
-    var cueObserver = new MutationObserver(function(mutations) {
+    const cueObserver = new MutationObserver(function(mutations) {
       mutations.forEach(function(mutation) {
-        var nowcues = getCurrentCues();
+        const nowcues = getCurrentCues();
         if (
           mutation.type === 'childList' &&
           mutation.addedNodes.length > 0 &&
@@ -166,7 +169,7 @@ window.addEventListener('message', async function(receivedMessage) {
 // injection, run in top world
 const js =
   '(function () {' +
-  ' var tid = setInterval(' +
+  ' let tid = setInterval(' +
   getSubUrl.toString() +
   ', 5000);' +
   ' window.addEventListener("message", function(receivedMessage) {' +
