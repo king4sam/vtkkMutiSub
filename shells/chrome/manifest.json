@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "KKTV Mutlti Subtitles",
-  "description": "Add Secondary subtitle",
+  "name": "vtkkMutiSub",
+  "description": "a chrome extension allow you to add secondary subtitle on KKTV.",
   "version": "1.2.0",
 
   "default_locale": "zh",
