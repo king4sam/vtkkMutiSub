@@ -29,7 +29,51 @@ function clearCueRender() {
   }
 }
 
-clearCueRender();
+function getCurrentCues(structuredCues) {
+  const video = document.querySelector(videoSelector);
+  const current = video.currentTime * 1000;
+  const toShow = structuredCues
+    .filter(cue => {
+      return current >= cue.startTime && current <= cue.endTime;
+    })
+    .map(cur => cur.sayings)
+    .reduce(function(acc, cur) {
+      return acc + cur;
+    }, '');
+  return toShow;
+}
+
+function calculateMilliseconds(timestr) {
+  const regex = /(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2}).(?<ms>\d{3})/g;
+  let m;
+  let milliseconds = null;
+  while ((m = regex.exec(timestr)) !== null) {
+    if (m.index === regex.lastIndex) {
+      regex.lastIndex++;
+    }
+
+    milliseconds = 0;
+    milliseconds =
+      parseInt(m.groups.hour, 10) * 3600000 +
+      parseInt(m.groups.minute, 10) * 60000 +
+      parseInt(m.groups.second, 10) * 1000 +
+      parseInt(m.groups.ms, 10);
+  }
+  return milliseconds;
+}
+
+function genMenuListItem({ lang, onclickcb }) {
+  const li = document.createElement('li');
+  li.id = lang;
+  const check = document.createElement('span');
+  check.classList.add('kktv');
+  li.appendChild(check);
+  const langText = document.createElement('span');
+  langText.innerText = getLocaleText(lang);
+  li.appendChild(langText);
+  li.addEventListener('click', onclickcb);
+  return li;
+}
 
 // language list item onclick handler
 function secondarySubtitleOnclick() {
@@ -99,70 +143,9 @@ function secondarySubtitleOnclick() {
   }
 }
 
-// create secondary menu
-const secondaryMenu = document.querySelector(secondaryMenuSelector);
-const langList = document.createElement('ul');
-const dummyHead = document.createElement('li');
-dummyHead.innerText = getLocaleText('secondarySubtitle');
-langList.appendChild(dummyHead);
-secondaryMenu.appendChild(langList);
-secondaryMenu.style.display = 'inline-flex';
-langList.appendChild(
-  genMenuListItem({
-    lang: 'disableSubtitle',
-    onclickcb: secondarySubtitleOnclick,
-  })
-);
-
-function genMenuListItem({ lang, onclickcb }) {
-  const li = document.createElement('li');
-  li.id = lang;
-  const check = document.createElement('span');
-  check.classList.add('kktv');
-  li.appendChild(check);
-  const langText = document.createElement('span');
-  langText.innerText = getLocaleText(lang);
-  li.appendChild(langText);
-  li.addEventListener('click', onclickcb);
-  return li;
-}
-
-function getCurrentCues(structuredCues) {
-  const video = document.querySelector(videoSelector);
-  const current = video.currentTime * 1000;
-  const toShow = structuredCues
-    .filter(cue => {
-      return current >= cue.startTime && current <= cue.endTime;
-    })
-    .map(cur => cur.sayings)
-    .reduce(function(acc, cur) {
-      return acc + cur;
-    }, '');
-  return toShow;
-}
-
-function calculateMilliseconds(timestr) {
-  const regex = /(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2}).(?<ms>\d{3})/g;
-  let m;
-  let milliseconds = null;
-  while ((m = regex.exec(timestr)) !== null) {
-    if (m.index === regex.lastIndex) {
-      regex.lastIndex++;
-    }
-
-    milliseconds = 0;
-    milliseconds =
-      parseInt(m.groups.hour, 10) * 3600000 +
-      parseInt(m.groups.minute, 10) * 60000 +
-      parseInt(m.groups.second, 10) * 1000 +
-      parseInt(m.groups.ms, 10);
-  }
-  return milliseconds;
-}
-
-// hanlde get subUrl message
-window.addEventListener('message', async function(receivedMessage) {
-  const numLangs = document.querySelector(langSelectSelector).children.length - 2;
+async function receiveMessageHandler(receivedMessage) {
+  const numLangs =
+    (document.querySelector(langSelectSelector) || { children: [] }).children.length - 2;
   if (receivedMessage.data.source === 'subUrl') {
     const lang = receivedMessage.data.lang;
     console.info('got message from suburl', receivedMessage);
@@ -172,7 +155,7 @@ window.addEventListener('message', async function(receivedMessage) {
 
     if (!window._mutiSubs.has(lang)) {
       window._mutiSubs.set(lang, vtt);
-
+      const langList = document.getElementById('vtkkSecondSubtitle');
       const li = genMenuListItem({ lang, onclickcb: secondarySubtitleOnclick });
       langList.appendChild(li);
 
@@ -187,22 +170,66 @@ window.addEventListener('message', async function(receivedMessage) {
       }
     }
   }
+}
+
+function doTheRightThing() {
+  console.info('do the right thing');
+  // create secondary menu
+  const vtkkSecondSubtitle = document.getElementById('vtkkSecondSubtitle');
+  if (vtkkSecondSubtitle) {
+    vtkkSecondSubtitle.parentNode.removeChild(vtkkSecondSubtitle);
+  }
+
+  const secondaryMenu = document.querySelector(secondaryMenuSelector);
+  const langList = document.createElement('ul');
+  langList.id = 'vtkkSecondSubtitle';
+
+  const dummyHead = document.createElement('li');
+  try {
+    dummyHead.innerText = getLocaleText('secondarySubtitle');
+    langList.appendChild(dummyHead);
+    secondaryMenu.appendChild(langList);
+    secondaryMenu.style.display = 'inline-flex';
+    langList.appendChild(
+      genMenuListItem({
+        lang: 'disableSubtitle',
+        onclickcb: secondarySubtitleOnclick,
+      })
+    );
+  } catch (error) {
+    console.error('no menu');
+  }
+
+  // hanlde get subUrl message
+  window.addEventListener('message', receiveMessageHandler);
+
+  // injection, run in top world
+  console.info('injection here');
+  const js =
+    '(function () {' +
+    'console.info("injec suc");' +
+    ' let tid = setInterval(' +
+    getSubUrl.toString() +
+    ', 5000);' +
+    ' window.addEventListener("message", function(receivedMessage) {' +
+    '   if (receivedMessage.data.source === "subEnough") {' +
+    '     clearInterval(tid);' +
+    '     console.info("subEnough");' +
+    '   }' +
+    ' })' +
+    '})();';
+
+  const script = document.createElement('script');
+  script.textContent = js;
+  document.documentElement.appendChild(script);
+  script.parentNode.removeChild(script);
+}
+
+chrome.runtime.onMessage.addListener(function(request, sender) {
+  console.info('receive message', request);
+  clearCueRender();
+  window._mutiSubs.clear();
+  window._renderer = [];
+  window.removeEventListener('message', receiveMessageHandler);
+  doTheRightThing();
 });
-
-// injection, run in top world
-const js =
-  '(function () {' +
-  ' let tid = setInterval(' +
-  getSubUrl.toString() +
-  ', 5000);' +
-  ' window.addEventListener("message", function(receivedMessage) {' +
-  '   if (receivedMessage.data.source === "subEnough") {' +
-  '     clearInterval(tid);' +
-  '   }' +
-  ' })' +
-  '})();';
-
-const script = document.createElement('script');
-script.textContent = js;
-document.documentElement.appendChild(script);
-script.parentNode.removeChild(script);
