@@ -41,8 +41,7 @@ function secondarySubtitleOnclick() {
   this.firstChild.classList.add('kktv-check');
 
   clearCueRender();
-
-  if (language !== getLocaleText('disableSubtitle')) {
+  if (language !== 'disableSubtitle') {
     console.info('enable : ', language);
     const vtt = window._mutiSubs.get(language);
 
