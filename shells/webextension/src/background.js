@@ -13,8 +13,8 @@ chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  console.log(changeInfo);
-  if (changeInfo.status === 'loading' && changeInfo.url.includes('https://www.kktv.me/play/')) {
+  if (changeInfo.status === 'complete' && tab.url.includes('https://www.kktv.me/play/')) {
+    console.log('send retry');
     chrome.tabs.sendMessage(tabId, { operation: 'retry' });
   }
 });
