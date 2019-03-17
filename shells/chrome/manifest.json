@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "KKTV Mutlti Subtitles",
   "description": "Add Secondary subtitle",
-  "version": "1.1.0",
+  "version": "1.2.0",
 
   "default_locale": "zh",
 
