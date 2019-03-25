@@ -9,19 +9,19 @@
   "minimum_chrome_version": "49",
 
   "icons": {
-    "16": "icons/16-production.png",
-    "32": "icons/32-production.png",
-    "48": "icons/48-production.png",
-    "128": "icons/128-production.png"
+    "16": "icons/kk16.png",
+    "32": "icons/kk32.png",
+    "48": "icons/kk48.png",
+    "128": "icons/kk128.png"
   },
 
   "page_action": {
-    "default_popup": "popups/disabled.html",
+    "default_popup": "popups/default.html",
     "default_icon": {
-      "16": "icons/16-production.png",
-      "32": "icons/32-production.png",
-      "48": "icons/48-production.png",
-      "128": "icons/128-production.png"
+      "16": "icons/kk16.png",
+      "32": "icons/kk32.png",
+      "48": "icons/kk48.png",
+      "128": "icons/kk128.png"
     }
   },
 
