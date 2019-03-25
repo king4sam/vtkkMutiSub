@@ -14,7 +14,7 @@ const { join, relative } = require('path');
 
 // These files are copied along with Webpack-bundled files
 // to produce the final web extension
-const STATIC_FILES = ['icons', 'popups', 'main.html', 'panel.html', '_locales'];
+const STATIC_FILES = ['icons', 'popups', '_locales'];
 
 const relativePath = path => relative(process.cwd(), path);
 
