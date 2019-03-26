@@ -4,7 +4,7 @@ chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
     {
       conditions: [
         new chrome.declarativeContent.PageStateMatcher({
-          pageUrl: { hostEquals: 'https://www.kktv.me/play' },
+          pageUrl: { hostEquals: 'www.kktv.me' },
         }),
       ],
       actions: [new chrome.declarativeContent.ShowPageAction()],
