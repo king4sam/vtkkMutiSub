@@ -1,6 +1,7 @@
 # vtkkMutiSub
 
 a chrome extension allow you to add secondary subtitle on KKTV.
+
 KKTV 雙字幕擴充功能
 
 ## 特色

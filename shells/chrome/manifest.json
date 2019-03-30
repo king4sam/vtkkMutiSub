@@ -4,7 +4,7 @@
   "description": "a chrome extension allow you to add secondary subtitle on KKTV.",
   "version": "1.2.0",
 
-  "default_locale": "zh",
+  "default_locale": "zh_TW",
 
   "minimum_chrome_version": "49",
 
