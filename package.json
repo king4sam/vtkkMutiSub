@@ -45,25 +45,12 @@
     "webpack-cli": "^3.1.2"
   },
   "license": "BSD-3-Clause",
-  "repository": "facebook/react-devtools",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
     "build:extension": "yarn run build:extension:chrome && yarn run build:extension:firefox",
     "build:extension:chrome": "node ./shells/chrome/build",
-    "build:extension:firefox": "node ./shells/firefox/build",
-    "build:standalone": "cd packages/react-devtools-core && yarn run build",
-    "build:example": "cd ./test/example && ./build.sh",
-    "deploy": "cd ./shells/theme-preview && ./build.sh && gh-pages -d .",
     "lint": "eslint .",
     "test": "jest",
-    "test:chrome": "node ./shells/chrome/test",
-    "test:firefox": "node ./shells/firefox/test",
-    "test:plain": "cd ./shells/plain && ./build.sh --watch",
-    "test:standalone": "cd packages/react-devtools && yarn start",
-    "typecheck": "flow check"
+    "test:chrome": "node ./shells/chrome/test"
   },
   "jest": {
     "modulePathIgnorePatterns": [
