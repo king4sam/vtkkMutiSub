@@ -27,7 +27,6 @@ function getSubUrl() {
   }
 
   function mountFiber(fiber) {
-    console.info('mountFiber');
     // Depth-first.
     // Logs mounting of children first, parents later.
     let node = fiber;

@@ -1,6 +1,12 @@
 import getSubUrl from './getSubUrl';
 
-console.info('content script initial');
+const configFontSize = '4vh';
+const subCueId = 'subCue';
+const cueOverlay = 'cue-overlay';
+const kktvCheck = 'kktv-check';
+const cueWrapperId = 'cueWrapper';
+const disableSubtitle = 'disableSubtitle';
+const vtkkSecondSubtitleId = 'vtkkSecondSubtitle';
 
 const secondaryMenuSelector =
   '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu';
@@ -23,7 +29,7 @@ function getLocaleText(str) {
 function clearCueRender() {
   window._renderer.forEach(renderer => clearInterval(renderer));
   window._renderer = [];
-  const cue = document.getElementById('subCue');
+  const cue = document.getElementById(subCueId);
   if (cue) {
     cue.innerText = '';
   }
@@ -80,12 +86,12 @@ function secondarySubtitleOnclick() {
   const language = this.id;
   const siblings = Array.apply(null, this.parentNode.childNodes).slice(1);
   siblings.forEach(ele => {
-    ele.firstChild.classList.remove('kktv-check');
+    ele.firstChild.classList.remove(kktvCheck);
   });
-  this.firstChild.classList.add('kktv-check');
+  this.firstChild.classList.add(kktvCheck);
 
   clearCueRender();
-  if (language !== 'disableSubtitle') {
+  if (language !== disableSubtitle) {
     console.info('enable : ', language);
     const vtt = window._mutiSubs.get(language);
 
@@ -108,33 +114,32 @@ function secondarySubtitleOnclick() {
 
     const timer = setInterval(() => {
       const nowcues = getCurrentCues(structuredCues);
-      console.info(nowcues);
 
       const originCue = document.querySelector(originCueSelector);
 
-      let cueWrapper = document.getElementById('cueWrapper');
+      let cueWrapper = document.getElementById(cueWrapperId);
 
       const videoWrapper = document.querySelector(videoWrapperSelector);
 
-      const subCue = document.getElementById('subCue');
+      const subCue = document.getElementById(subCueId);
 
       if (!cueWrapper) {
         const cueWrapperEle = document.createElement('div');
-        cueWrapperEle.id = 'cueWrapper';
+        cueWrapperEle.id = cueWrapperId;
         cueWrapperEle.appendChild(originCue);
-        originCue.classList.remove('cue-overlay');
-        cueWrapperEle.classList.add('cue-overlay');
+        originCue.classList.remove(cueOverlay);
+        cueWrapperEle.classList.add(cueOverlay);
         cueWrapper = cueWrapperEle;
         videoWrapper.appendChild(cueWrapperEle);
       }
 
       if (!subCue) {
         const secSubEle = document.createElement('div');
-        secSubEle.id = 'subCue';
-        secSubEle.style.fontSize = '4vh';
+        secSubEle.id = subCueId;
+        secSubEle.style.fontSize = configFontSize;
         secSubEle.innerText = `${nowcues}`;
         cueWrapper.appendChild(secSubEle);
-      } else {
+      } else if (subCue.innerText !== nowcues) {
         subCue.innerText = `${nowcues}`;
       }
     }, 200);
@@ -155,7 +160,7 @@ async function receiveMessageHandler(receivedMessage) {
 
     if (!window._mutiSubs.has(lang)) {
       window._mutiSubs.set(lang, vtt);
-      const langList = document.getElementById('vtkkSecondSubtitle');
+      const langList = document.getElementById(vtkkSecondSubtitleId);
       const li = genMenuListItem({ lang, onclickcb: secondarySubtitleOnclick });
       langList.appendChild(li);
 
@@ -172,17 +177,16 @@ async function receiveMessageHandler(receivedMessage) {
   }
 }
 
-function doTheRightThing() {
-  console.info('do the right thing');
+function setupLangMenu() {
   // create secondary menu
-  const vtkkSecondSubtitle = document.getElementById('vtkkSecondSubtitle');
+  const vtkkSecondSubtitle = document.getElementById(vtkkSecondSubtitleId);
   if (vtkkSecondSubtitle) {
-    vtkkSecondSubtitle.parentNode.removeChild(vtkkSecondSubtitle);
+    vtkkSecondSubtitle.parentNode.removeChild(vtkkSecondSubtitleId);
   }
 
   const secondaryMenu = document.querySelector(secondaryMenuSelector);
   const langList = document.createElement('ul');
-  langList.id = 'vtkkSecondSubtitle';
+  langList.id = vtkkSecondSubtitleId;
 
   const dummyHead = document.createElement('li');
   try {
@@ -192,7 +196,7 @@ function doTheRightThing() {
     secondaryMenu.style.display = 'inline-flex';
     langList.appendChild(
       genMenuListItem({
-        lang: 'disableSubtitle',
+        lang: disableSubtitle,
         onclickcb: secondarySubtitleOnclick,
       })
     );
@@ -204,7 +208,6 @@ function doTheRightThing() {
   window.addEventListener('message', receiveMessageHandler);
 
   // injection, run in top world
-  console.info('injection here');
   const js =
     '(function () {' +
     'console.info("injec suc");' +
@@ -226,10 +229,11 @@ function doTheRightThing() {
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender) {
+  // retry
   console.info('receive message', request);
   clearCueRender();
   window._mutiSubs.clear();
   window._renderer = [];
   window.removeEventListener('message', receiveMessageHandler);
-  doTheRightThing();
+  setupLangMenu();
 });

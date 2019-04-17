@@ -18,5 +18,3 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     chrome.tabs.sendMessage(tabId, { operation: 'retry' });
   }
 });
-
-console.log('background');
