@@ -1,7 +1,5 @@
 import getSubUrl from './getSubUrl';
 
-console.info('content script initial');
-
 const secondaryMenuSelector =
   '#app-mount-point > div > div:nth-child(1) > div > div > div.video-wrapper.js-fs-wrapper > div.video-controls.yapi-controls > div.video-controls-main.yapi-panel > div.video-bottom-wrapper > div.rejc-dropdown.video-btn.btn--subtitle > div.rejc-dropdown__menu';
 const videoSelector =
@@ -108,7 +106,6 @@ function secondarySubtitleOnclick() {
 
     const timer = setInterval(() => {
       const nowcues = getCurrentCues(structuredCues);
-      console.info(nowcues);
 
       const originCue = document.querySelector(originCueSelector);
 
@@ -173,7 +170,6 @@ async function receiveMessageHandler(receivedMessage) {
 }
 
 function doTheRightThing() {
-  console.info('do the right thing');
   // create secondary menu
   const vtkkSecondSubtitle = document.getElementById('vtkkSecondSubtitle');
   if (vtkkSecondSubtitle) {
@@ -204,7 +200,6 @@ function doTheRightThing() {
   window.addEventListener('message', receiveMessageHandler);
 
   // injection, run in top world
-  console.info('injection here');
   const js =
     '(function () {' +
     'console.info("injec suc");' +

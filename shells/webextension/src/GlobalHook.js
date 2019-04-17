@@ -37,4 +37,3 @@ const script = document.createElement('script');
 script.textContent = js;
 document.documentElement.appendChild(script);
 script.parentNode.removeChild(script);
-console.info('__REACT_DEVTOOLS_GLOBAL_HOOK__');
