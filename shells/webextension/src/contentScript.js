@@ -181,7 +181,7 @@ function setupLangMenu() {
   // create secondary menu
   const vtkkSecondSubtitle = document.getElementById(vtkkSecondSubtitleId);
   if (vtkkSecondSubtitle) {
-    vtkkSecondSubtitle.parentNode.removeChild(vtkkSecondSubtitleId);
+    vtkkSecondSubtitle.parentNode.removeChild(vtkkSecondSubtitle);
   }
 
   const secondaryMenu = document.querySelector(secondaryMenuSelector);
